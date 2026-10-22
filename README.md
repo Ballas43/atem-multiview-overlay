@@ -186,7 +186,7 @@ When working without physical hardware:
 
 ## Author & Credits
 
-* **Developed by:** Timotius Austin ([Linktree](https://linktr.ee/timotiusaustin43))
+* **Developed by:** Ballas43
 * **ATEM Protocol Library:** Powered by the open-source [`atem-connection`](https://github.com/nrkno/tv-automation-atem-connection) library by Sofie / NRK.
 
 ---
