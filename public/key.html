@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATEM Multiview Overlay (MVO) - Key / Alpha Matte (/key)</title>
+  <link rel="icon" type="image/png" href="/media/favicon.png">
+  <link id="overlay-css" rel="stylesheet" href="/css/overlay.css?v=4">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body data-view="key" class="view-key">
+  <div id="mv-container">
+    <div id="mv-grid"></div>
+
+    <!-- Warning shown on /key when Key & Fill mode is NOT selected -->
+    <div id="key-warning-overlay" class="key-warning-overlay hidden">
+      <div class="key-warning-box">
+        <div class="key-warning-icon">⚠️</div>
+        <div class="key-warning-title">KEY OUTPUT INACTIVE — NOT IN KEY &amp; FILL MODE</div>
+        <div class="key-warning-desc">
+          This route (<code>/key</code>) outputs the grayscale luminance alpha matte for external Key &amp; Fill
+          keying.<br>
+          Current Keying Mode is set to: <strong id="key-warning-mode-name">Chroma Key</strong>.
+        </div>
+        <div class="key-warning-hint">
+          Switch <strong>Keying Type</strong> to <strong>Key &amp; Fill (/out Fill + /key Key)</strong> in the Control
+          Panel (<code>/</code>) to activate this Key output.
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/overlay.js?v=4"></script>
+</body>
+
+</html>

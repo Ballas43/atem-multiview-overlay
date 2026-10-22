@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATEM Multiview Overlay (MVO) - Control Panel</title>
+  <link rel="icon" type="image/png" href="/media/favicon.png">
+  <link rel="stylesheet" href="/css/control.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="brand-logo">
+          <img src="/media/logo_icon.png" alt="ATEM Multiview Overlay (MVO) Logo" class="app-logo-img" />
+        </div>
+        <div class="brand-info">
+          <h1>ATEM Multiview Overlay (MVO)</h1>
+          <span class="brand-sub">Broadcast Feed Augmentation &bull; Key &amp; Fill Generator</span>
+        </div>
+      </div>
+
+      <div class="nav-center">
+        <div id="connection-pill" class="status-pill status-disconnected">
+          <span class="status-dot"></span>
+          <span id="connection-status-text">DISCONNECTED</span>
+        </div>
+        <div id="atem-model-badge" class="model-badge">Unknown Model</div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="btn-theme-toggle" class="btn btn-secondary btn-sm" title="Toggle Theme (Auto / Dark / Light)">
+          <svg id="theme-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Icon rendered dynamically -->
+          </svg>
+          <span id="theme-text">Auto</span>
+        </button>
+        <button id="btn-toggle-mock" class="btn btn-secondary btn-sm" title="Toggle Simulation Mode">
+          <span id="mock-badge-indicator" class="mode-tag mode-sim">SIMULATION</span>
+          <span id="mock-btn-text">Hardware Mode</span>
+        </button>
+        <button id="btn-copy-url" class="btn btn-secondary btn-sm" title="Copy Output / Fill Stream URL (/out)">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy Fill (/out)
+        </button>
+        <button id="btn-copy-key-url" class="btn btn-secondary btn-sm" title="Copy Key / Alpha Matte Stream URL (/key)">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy Key (/key)
+        </button>
+        <a id="btn-open-out" href="/out" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Open Fill (/out)
+        </a>
+        <a id="btn-open-key" href="/key" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Open Key (/key)
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace-grid">
+      <!-- Left Column: Settings Form -->
+      <section class="panel-section config-panel">
+        <div class="section-header">
+          <h2>Configuration & Settings</h2>
+          <span class="hint-text">Auto-persisted to config.json</span>
+        </div>
+
+        <form id="config-form" class="config-form" onsubmit="return false;">
+          <!-- ATEM Network Connection -->
+          <fieldset class="form-group-fieldset">
+            <legend>ATEM Switcher Connection</legend>
+            <div class="form-row">
+              <div class="form-field flex-2">
+                <label for="cfg-atem-ip">ATEM IP Address</label>
+                <div class="input-with-button">
+                  <input type="text" id="cfg-atem-ip" placeholder="192.168.10.240" spellcheck="false"
+                    autocomplete="off" />
+                  <button type="button" id="btn-apply-ip" class="btn btn-accent btn-sm">Connect / Apply</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cfg-target-mv">Target Multiviewer</label>
+                <select id="cfg-target-mv">
+                  <option value="0">MV 1 (Multiviewer 1)</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="cfg-me-index">Tally M/E Source</label>
+                <select id="cfg-me-index">
+                  <option value="0">M/E 1</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Keying & Transparency -->
+          <fieldset class="form-group-fieldset">
+            <legend>Keying & Background Mode</legend>
+            <div class="form-field">
+              <label>Keying Type</label>
+              <div class="radio-toggle-group">
+                <label class="radio-chip">
+                  <input type="radio" name="bgMode" value="chroma" id="bg-mode-chroma" checked />
+                  <span>Chroma Key (Solid Color)</span>
+                </label>
+                <label class="radio-chip">
+                  <input type="radio" name="bgMode" value="transparent" id="bg-mode-transparent" />
+                  <span>Alpha Key (Transparent for OBS / vMix)</span>
+                </label>
+                <label class="radio-chip">
+                  <input type="radio" name="bgMode" value="keyfill" id="bg-mode-keyfill" />
+                  <span>Key &amp; Fill (/out Fill + /key Key)</span>
+                </label>
+              </div>
+            </div>
+
+            <div id="chroma-options" class="form-field">
+              <label for="cfg-chroma-color">Chroma Background Color</label>
+              <div class="color-picker-row">
+                <input type="color" id="cfg-chroma-color" value="#00FF00" />
+                <input type="text" id="cfg-chroma-hex" value="#00FF00" maxlength="7" class="hex-input" />
+                <div class="preset-buttons">
+                  <button type="button" class="btn-preset" data-color="#00FF00" style="background:#00FF00"
+                    title="Green"></button>
+                  <button type="button" class="btn-preset" data-color="#0000FF" style="background:#0000FF"
+                    title="Blue"></button>
+                  <button type="button" class="btn-preset" data-color="#FF00FF" style="background:#FF00FF"
+                    title="Magenta"></button>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Border & Tally Appearance -->
+          <fieldset class="form-group-fieldset">
+            <legend>Borders & Tally Color Settings</legend>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cfg-border-color">Default Border Color</label>
+                <div class="color-picker-row">
+                  <input type="color" id="cfg-border-color" value="#555555" />
+                  <input type="text" id="cfg-border-hex" value="#555555" maxlength="7" class="hex-input" />
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="cfg-border-width">Default Border Width: <span id="val-border-width">2px</span></label>
+                <input type="range" id="cfg-border-width" min="0" max="10" step="1" value="2" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cfg-preview-color">Preview Tally Color (Chroma-Safe)</label>
+                <div class="color-picker-row">
+                  <input type="color" id="cfg-preview-color" value="#00CC00" />
+                  <input type="text" id="cfg-preview-hex" value="#00CC00" maxlength="7" class="hex-input" />
+                  <div class="preset-buttons">
+                    <button type="button" class="btn-preset-pvw" data-color="#00CC00" style="background:#00CC00"
+                      title="Green"></button>
+                    <button type="button" class="btn-preset-pvw" data-color="#FFAA00" style="background:#FFAA00"
+                      title="Amber (No Spill)"></button>
+                    <button type="button" class="btn-preset-pvw" data-color="#00FFFF" style="background:#00FFFF"
+                      title="Cyan"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="cfg-program-color">Program Tally Color</label>
+                <div class="color-picker-row">
+                  <input type="color" id="cfg-program-color" value="#FF0000" />
+                  <input type="text" id="cfg-program-hex" value="#FF0000" maxlength="7" class="hex-input" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cfg-tally-width">Tally Border Width: <span id="val-tally-width">4px</span></label>
+                <input type="range" id="cfg-tally-width" min="2" max="16" step="1" value="4" />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Overlay Visibility Toggles -->
+          <fieldset class="form-group-fieldset">
+            <legend>Overlay Elements</legend>
+            <div class="checkbox-row">
+              <label class="checkbox-label">
+                <input type="checkbox" id="cfg-show-borders" checked />
+                <span>Show Window Borders</span>
+              </label>
+
+              <label class="checkbox-label">
+                <input type="checkbox" id="cfg-show-tally" checked />
+                <span>Show Tally Highlight</span>
+              </label>
+
+              <label class="checkbox-label">
+                <input type="checkbox" id="cfg-show-labels" checked />
+                <span>Show Source Labels</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Simulation / Mock Controls (Dynamic) -->
+          <fieldset id="mock-controls-fieldset" class="form-group-fieldset mock-box">
+            <legend>Simulation Mode Controls</legend>
+            <p class="mock-desc">Simulate switcher layouts and tally cuts without hardware.</p>
+
+            <div class="form-field">
+              <label>Select Mock Layout Preset</label>
+              <div class="layout-preset-grid">
+                <button type="button" class="btn-layout" data-layout="0">4 Large Quad (0)</button>
+                <button type="button" class="btn-layout" data-layout="12">Program Top 10-View (12)</button>
+                <button type="button" class="btn-layout" data-layout="3">Program Bottom 10-View (3)</button>
+                <button type="button" class="btn-layout" data-layout="15">Full 16-Grid (15)</button>
+                <button type="button" class="btn-layout" data-layout="10">Program Left (10)</button>
+                <button type="button" class="btn-layout" data-layout="5">Program Right (5)</button>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label>Simulate Quick Tally Cuts</label>
+              <div class="tally-sim-buttons">
+                <button type="button" class="btn btn-sm btn-pvw" data-pvw="1">Cam 1 PVW</button>
+                <button type="button" class="btn btn-sm btn-pvw" data-pvw="2">Cam 2 PVW</button>
+                <button type="button" class="btn btn-sm btn-pvw" data-pvw="3">Cam 3 PVW</button>
+                <button type="button" class="btn btn-sm btn-pvw" data-pvw="4">Cam 4 PVW</button>
+                <span class="divider-v"></span>
+                <button type="button" class="btn btn-sm btn-pgm" data-pgm="1">Cam 1 PGM</button>
+                <button type="button" class="btn btn-sm btn-pgm" data-pgm="2">Cam 2 PGM</button>
+                <button type="button" class="btn btn-sm btn-pgm" data-pgm="3">Cam 3 PGM</button>
+                <button type="button" class="btn btn-sm btn-pgm" data-pgm="4">Cam 4 PGM</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <!-- Right Column: Live Confidence Preview -->
+      <section class="panel-section preview-panel">
+        <div class="section-header">
+          <h2>Live Confidence Preview</h2>
+          <div class="preview-header-meta">
+            <div class="preview-mode-switch">
+              <button type="button" id="btn-preview-fill" class="btn btn-xs btn-primary">Fill (/out)</button>
+              <button type="button" id="btn-preview-key" class="btn btn-xs btn-secondary">Key (/key)</button>
+            </div>
+            <span class="aspect-badge">16:9 • 1080p Mirror</span>
+            <button type="button" id="btn-refresh-preview" class="btn btn-secondary btn-xs" title="Reload iframe">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-viewport-wrapper">
+          <div class="preview-viewport-container">
+            <iframe id="preview-frame" src="/out?preview=1" title="Overlay Preview Frame"></iframe>
+          </div>
+        </div>
+
+        <div class="preview-hint">
+          <span>This viewport mirrors the pixel-accurate output keyed into your media server or secondary
+            switcher.</span>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Section: Window Routing Inspector Table -->
+    <section class="table-section">
+      <div class="section-header">
+        <h2>Active Window Routing Inspector</h2>
+        <span class="hint-text">Inspect source mappings, tally states, and toggle individual label visibility</span>
+      </div>
+
+      <div class="table-container">
+        <table id="routing-table" class="data-table">
+          <thead>
+            <tr>
+              <th>Window #</th>
+              <th>Grid Placement</th>
+              <th>Source ID</th>
+              <th>Source Name</th>
+              <th>Tally Status</th>
+              <th>Label Action</th>
+            </tr>
+          </thead>
+          <tbody id="routing-table-body">
+            <tr>
+              <td colspan="6" class="empty-cell">Waiting for ATEM state...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- App Footer with subtle project by credit -->
+    <footer class="app-footer">
+      <div class="footer-credit">
+        <a href="https://linktr.ee/timotiusaustin43" target="_blank" rel="noopener noreferrer" class="credit-link">
+          <span>Project by</span>
+          <img src="/media/personal_logo.webp" alt="Timotius Austin" class="credit-logo" />
+        </a>
+      </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Notification</div>
+  </div>
+
+  <script src="/js/control.js"></script>
+</body>
+
+</html>

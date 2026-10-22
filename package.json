@@ -1,0 +1,33 @@
+{
+  "name": "atem-mv-overlay",
+  "version": "1.0.0",
+  "description": "ATEM Multiview Overlay (MVO) - Broadcast feed augmentation, dynamic tally, and Key & Fill generator",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts"
+  },
+  "keywords": [
+    "atem",
+    "blackmagic",
+    "multiview",
+    "overlay",
+    "broadcast",
+    "tally"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "atem-connection": "^3.10.3",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.7",
+    "socket.io-client": "^4.8.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

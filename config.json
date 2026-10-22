@@ -1,0 +1,18 @@
+{
+  "atemIp": "192.168.124.1",
+  "targetMvIndex": 0,
+  "bgMode": "transparent",
+  "chromaColor": "#00FF00",
+  "borderColor": "#555555",
+  "borderWidthPx": 4,
+  "showBorders": true,
+  "showLabels": true,
+  "showTally": true,
+  "meIndex": 0,
+  "previewTallyColor": "#00CC00",
+  "programTallyColor": "#FF0000",
+  "tallyBorderWidthPx": 5,
+  "mockMode": false,
+  "hiddenWindows": [],
+  "port": 3000
+}

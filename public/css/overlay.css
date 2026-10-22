@@ -1,0 +1,240 @@
+:root {
+  --bg-color: #00FF00;
+  --border-color: #555555;
+  --border-width: 2px;
+  --preview-color: #00CC00;
+  --program-color: #FF0000;
+  --tally-width: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  font-family: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.mode-transparent,
+body.mode-transparent,
+body.mode-transparent #mv-container,
+body.mode-transparent #mv-grid {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+html.mode-keyfill,
+body.mode-keyfill,
+body.view-key {
+  background-color: #000000 !important;
+}
+
+/* Subtle checkerboard for preview iframe when transparent */
+body.in-preview.mode-transparent {
+  background-color: #12141a !important;
+  background-image:
+    linear-gradient(45deg, #1c1f26 25%, transparent 25%),
+    linear-gradient(-45deg, #1c1f26 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1c1f26 75%),
+    linear-gradient(-45deg, transparent 75%, #1c1f26 75%) !important;
+  background-size: 20px 20px !important;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
+}
+
+#mv-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+#mv-grid {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(4, 25%);
+  grid-template-rows: repeat(4, 25%);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.mv-cell {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: var(--border-width) solid var(--border-color);
+  transition: border-color 0.05s ease;
+}
+
+.mv-cell.no-borders {
+  border: none !important;
+}
+
+/* Tally States */
+.mv-cell.tally-preview {
+  border: var(--tally-width) solid var(--preview-color) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 0, 0, 0.75);
+  z-index: 5;
+}
+
+.mv-cell.tally-program {
+  border: var(--tally-width) solid var(--program-color) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(0, 0, 0, 0.75);
+  z-index: 6;
+}
+
+/* Both Program and Preview: Program border with dual inner preview hint */
+.mv-cell.tally-program.tally-preview {
+  border: var(--tally-width) solid var(--program-color) !important;
+  box-shadow: inset 0 0 0 2px var(--preview-color), 0 0 0 1px rgba(0, 0, 0, 0.75);
+  z-index: 7;
+}
+
+/* Key View (/key) Alpha Matte Overrides: White = 100% Opaque, Grey = Translucent, Black = Transparent */
+body.view-key .mv-cell {
+  border-color: #FFFFFF !important;
+}
+
+body.view-key .mv-cell.tally-preview,
+body.view-key .mv-cell.tally-program,
+body.view-key .mv-cell.tally-program.tally-preview {
+  border-color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+/* Label styling matching the ATEM native Multiview appearance */
+.mv-label {
+  position: absolute;
+  bottom: 2.5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Opaque chroma-safe dark fill & grey border so green chroma keyers never key out the label box */
+  background-color: #161418;
+  border: 1.5px solid #96929a;
+  color: #FFFFFF;
+  font-family: 'Helvetica Neue', Helvetica, Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 2.1vh;
+  line-height: 1.15;
+  padding: 0.3vh 0.7vw;
+  border-radius: 0.45vh;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85%;
+  text-align: center;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  user-select: none;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* In Alpha / Transparent mode, use native translucent black & white alpha border */
+body.mode-transparent .mv-label {
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+}
+
+/* In Key & Fill mode on /out (Fill), use black label box & light grey border */
+body.mode-keyfill:not(.view-key) .mv-label {
+  background-color: #000000;
+  border: 1.5px solid #96929a;
+  color: #FFFFFF;
+}
+
+/* In Key & Fill mode on /key (Key / Alpha Matte), label background is 65% white (translucent box) with 100% white border & text */
+body.view-key .mv-label {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+  border: 1.5px solid #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Warning Overlay on /key when not in Key & Fill mode */
+.key-warning-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #1b1507 0%, #090a0f 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 4vw;
+}
+
+.key-warning-box {
+  max-width: 780px;
+  width: 100%;
+  background-color: rgba(24, 20, 12, 0.92);
+  border: 2px solid #f59e0b;
+  border-radius: 1.2vh;
+  padding: 4vh 3.5vw;
+  text-align: center;
+  color: #f9fafb;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(245, 158, 11, 0.2);
+}
+
+.key-warning-icon {
+  font-size: 6vh;
+  line-height: 1;
+  margin-bottom: 1.5vh;
+}
+
+.key-warning-title {
+  font-size: 2.8vh;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.6vh;
+}
+
+.key-warning-desc {
+  font-size: 2vh;
+  line-height: 1.5;
+  color: #e5e7eb;
+  margin-bottom: 2vh;
+}
+
+.key-warning-desc strong {
+  color: #ffffff;
+  background-color: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  padding: 0.2vh 0.6vw;
+  border-radius: 0.4vh;
+}
+
+.key-warning-hint {
+  font-size: 1.7vh;
+  color: #9ca3af;
+  background-color: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1.4vh 1.5vw;
+  border-radius: 0.6vh;
+}
+
+.key-warning-box code {
+  font-family: monospace;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.15);
+  padding: 0.1vh 0.4vw;
+  border-radius: 0.3vh;
+}
+
+.hidden {
+  display: none !important;
+}
