@@ -66,7 +66,9 @@
   typeThemeInit();
 
   function typeThemeInit() {
-    const savedTheme = localStorage.getItem('mv-theme') || 'auto';
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTheme = urlParams.get('theme');
+    const savedTheme = urlTheme || localStorage.getItem('mv-theme') || 'auto';
     applyTheme(savedTheme, false);
 
     // Watch OS system preference changes

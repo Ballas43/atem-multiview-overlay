@@ -18,8 +18,44 @@
 
 ---
 
+<p align="center">
+  <img src="docs/screenshots/control_panel_dark.png" alt="ATEM Multiview Overlay Control Panel" width="100%" style="border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.5);" />
+</p>
+
+<p align="center">
+  <em>ATEM Multiview Overlay (MVO) Master Control Interface — Real-time switcher sync, live confidence preview, and dynamic tally routing inspector.</em>
+</p>
+
+<p align="center">
+  <a href="#interface--output-showcase">Interface Showcase</a> •
+  <a href="#overview">Overview</a> •
+  <a href="#key-features">Key Features</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#broadcast-keying-architecture">Keying Architecture</a>
+</p>
+
+---
+
 > [!WARNING]
 > **AI Development Disclaimer:** This project contains AI-assisted code. It was designed, architected, and built with the assistance of an advanced AI coding agent. If an AI-assisted project does not align with your preferences or workflow requirements, you are welcome to review, fork, or modify the source code. This project is 100% open-source under the [MIT License](LICENSE).
+
+---
+
+## Interface & Output Showcase
+
+### Multiview Overlay Feeds (`/out` & `/key`)
+
+| Chroma Key Output (`/out`) | Key & Fill Luminance Alpha Matte (`/key`) |
+| :---: | :---: |
+| <img src="docs/screenshots/overlay_chroma_10view.png" alt="Multiview Overlay Chroma Key Output" width="100%" /> | <img src="docs/screenshots/key_fill_matte.png" alt="Multiview Key Channel Luminance Alpha Matte" width="100%" /> |
+| **Solid Chroma Key Mode**: Program red tally on Window 0, Preview green tally on Window 2, and native Blackmagic dark label badges with zero green chroma bleed. | **Key & Fill Alpha Matte**: Pure white luminance silhouettes (100% white borders, 65% white translucent label fill) for downstream SDI/NDI luma and linear keyers. |
+
+### Control Panel Themes
+
+| Studio Dark Theme (Default) | Studio Light Theme (Outdoor/Daylight) |
+| :---: | :---: |
+| <img src="docs/screenshots/control_panel_dark.png" alt="ATEM Multiview Overlay Control Panel - Dark Theme" width="100%" /> | <img src="docs/screenshots/control_panel_light.png" alt="ATEM Multiview Overlay Control Panel - Light Theme" width="100%" /> |
+| Master control interface tuned for dark studio and gallery environments. | High-contrast daylight theme for outdoor broadcast trucks and bright venues. |
 
 ---
 
@@ -75,6 +111,8 @@ mv_injector/
 ├── config.json                     # Persistent configuration state
 ├── LICENSE                         # MIT License
 ├── README.md                       # Project documentation
+├── docs/
+│   └── screenshots/                # Application & interface preview captures
 ├── src/
 │   ├── server.ts                   # Express & Socket.io server entry point
 │   ├── atemManager.ts              # ATEM connection manager & state parser
